@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fpaa-tools"
+version = "0.4.0"
+description = "Python tooling for Anadigm AN231E04 FPAAs on the Okika OTC2310K04-PIKA Raspberry Pi HAT"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Brian Sheppard" }]
+keywords = ["fpaa", "an231e04", "anadigm", "okika", "pika", "analog", "raspberry-pi"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+]
+dependencies = ["numpy>=1.24.0"]
+
+[project.optional-dependencies]
+# Pi-side hardware access. Kept optional so the pure-logic layers
+# (config parsing, reconfig diffing, measurement analysis) install and
+# test on any host without Pi-only wheels.
+hardware = ["spidev>=3.6", "RPi.GPIO>=0.7.2", "gpiod>=2.1"]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/bshepp/fpaa-tools"
+
+[tool.setuptools.packages.find]
+include = ["fpaa*"]
+
+[tool.setuptools.package-data]
+fpaa = ["measure/calibration/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

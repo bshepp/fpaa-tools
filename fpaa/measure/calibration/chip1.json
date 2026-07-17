@@ -1,0 +1,10 @@
+{
+  "chip_id": 1,
+  "duty_slope": -0.16778,
+  "duty_intercept": 0.5002,
+  "comparator_offset_v": 0.0014,
+  "clean_swing_v": 2.2,
+  "overcount_below_v": 1.4,
+  "dead_below_v": 0.6,
+  "date": "2026-07-03"
+}

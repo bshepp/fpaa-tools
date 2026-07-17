@@ -1,0 +1,5 @@
+# Host-side development/testing — no Pi hardware required.
+# The library's pure-logic layers (config parsing, reconfig diffing,
+# measurement analysis) are fully testable off-hardware.
+numpy>=1.24.0
+pytest>=7.0

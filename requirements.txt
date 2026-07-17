@@ -1,0 +1,20 @@
+# fpaa-tools — Raspberry Pi runtime dependencies
+# For the OTC2310K04-PIKA HAT with 4x AN231E04 FPAAs
+
+spidev>=3.6              # SPI interface for FPAA configuration
+numpy>=1.24.0            # Numerical operations
+
+# GPIO control.
+#
+# RPi.GPIO >= 0.7.2 works on the Pi 5 (verified on a Pi 5 / Debian Trixie
+# bench with the distro-packaged 0.7.2). Older RPi.GPIO does not: the Pi 5
+# kernel removed the /sys/class/gpio sysfs interface that <0.7.2 relied on.
+#
+# If your RPi.GPIO predates 0.7.2 and you cannot upgrade it, rpi-lgpio is a
+# drop-in shim that imports as `RPi.GPIO` and routes to lgpio:
+#   pip install rpi-lgpio
+RPi.GPIO>=0.7.2
+
+# Edge capture (recommended for anything timing-sensitive — see README).
+# Provides kernel-timestamped GPIO edge events.
+gpiod>=2.1

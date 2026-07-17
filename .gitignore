@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+venv/
+.env
+.pytest_cache/
+
+# Generated configuration bitstreams
+*.ahf
+*.ad2
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
