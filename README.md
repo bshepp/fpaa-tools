@@ -53,7 +53,7 @@ Host-only (no Pi, no hardware) — the pure-logic layers are fully testable offl
 
 ```bash
 pip install -r requirements-dev.txt
-pytest                      # 82 tests, no hardware needed
+pytest                      # 64 tests, no hardware needed
 ```
 
 ## What's here
