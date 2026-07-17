@@ -87,4 +87,4 @@ deep path from PowerShell — use a short, simple output directory.
 The full circuit → silicon pipeline is scriptable end-to-end on Windows:
 author circuit via COM → `WriteConfigData(…, 0)` → validate with
 `fpaa.config` → scp to the Pi → `FPAAChain.send_bytes()`. No GUI sessions
-required for the `09-fpaa-characterization` study's circuit iterations.
+required, so circuit iterations can run unattended in a sweep.
