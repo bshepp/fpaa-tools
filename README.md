@@ -43,18 +43,24 @@ Two more Pi 5 notes baked into the driver:
 
 ## Install
 
+**On a Raspberry Pi (drives real hardware):**
+
 ```bash
 git clone https://github.com/bshepp/fpaa-tools
 cd fpaa-tools
-pip install -e .            # or: pip install -r requirements.txt
+pip install -e ".[hardware]"   # pulls spidev, RPi.GPIO, gpiod (Pi-only wheels)
 ```
 
-Host-only (no Pi, no hardware) — the pure-logic layers are fully testable offline:
+**On any host (no Pi, no hardware)** — the pure-logic layers (AHF parsing, reconfig
+diffing, measurement analysis) install and test anywhere:
 
 ```bash
-pip install -r requirements-dev.txt
-pytest                      # 64 tests, no hardware needed
+pip install -e ".[dev]"        # numpy + pytest only
+pytest                         # 64 tests, no hardware needed
 ```
+
+> `requirements.txt` is the **Pi runtime** dependency set and expects Pi-only wheels
+> (`spidev`, `RPi.GPIO`); it will not install on a non-Pi host. Use the extras above.
 
 ## What's here
 
