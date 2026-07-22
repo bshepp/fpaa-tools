@@ -7,7 +7,7 @@ name = "fpaa-tools"
 version = "0.4.0"
 description = "Python tooling for Anadigm AN231E04 FPAAs on the Okika OTC2310K04-PIKA Raspberry Pi HAT"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Brian Sheppard" }]
 keywords = ["fpaa", "an231e04", "anadigm", "okika", "pika", "analog", "raspberry-pi"]

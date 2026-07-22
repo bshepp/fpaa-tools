@@ -1,5 +1,7 @@
 # fpaa-tools
 
+[![tests](https://github.com/bshepp/fpaa-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/bshepp/fpaa-tools/actions/workflows/tests.yml)
+
 Python tooling for **Anadigm AN231E04** field-programmable analog arrays on the
 **Okika OTC2310K04-PIKA** Raspberry Pi HAT (4 chips, daisy-chained over SPI).
 

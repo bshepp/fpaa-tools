@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Quoted so YAML does not read 3.10 as the float 3.1.
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    name: py${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # Host-only install: the [dev] extra is numpy + pytest. The [hardware]
+      # extra (spidev / RPi.GPIO / gpiod) is intentionally NOT installed —
+      # those are Pi-only wheels and the 64 tests need no hardware.
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Test
+        run: pytest -q
