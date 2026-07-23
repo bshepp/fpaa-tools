@@ -93,6 +93,19 @@ Keep high-rate signals in their own `gpiod` request. A pin emitting ~240k edges/
 will flood the shared kernel event buffer and silently drop edges from the pins
 you care about.
 
+Two more limits, measured on the bench (Pi 5, kernel 6.12, 2026-07-21):
+
+- **The kernel clamps each line request's edge-event buffer to ~1024 events**,
+  regardless of the `event_buffer_size` requested. Sustained loss-free capture
+  therefore ends around 100–200k edges/s, and GPIO frequency checks are only
+  trustworthy up to **~150 kHz per pin**. The 4osc reference config's 80 and
+  150 kHz channels verify exactly; its 277 and 493 kHz channels show edge
+  activity but need a scope for frequency confirmation.
+- **Analog outputs read through a digital GPIO produce threshold chatter** —
+  bursts of extra edges at each level crossing. Estimate frequency from the
+  **median rise-to-rise period**; the mean edge rate lies in both directions
+  (up under chatter, down under dropped events).
+
 ## Analog gotchas
 
 - FPAAs are sensitive to power-supply noise.

@@ -107,6 +107,13 @@ Also keep high-rate signals out of a shared `gpiod` request: a pin emitting
 ~240k edges/s floods the kernel event buffer and silently drops ~1.3% of the
 other pins' edges.
 
+There is a hard ceiling behind that: the kernel clamps a line request's
+edge-event buffer to ~1024 events no matter what `event_buffer_size` you ask
+for, so sustained loss-free capture ends around 100–200k edges/s. In practice
+GPIO frequency measurements are trustworthy up to ~150 kHz per pin — bench
+runs confirm the 80 and 150 kHz 4osc channels exactly, while the 277 and
+493 kHz channels show activity but need a scope for frequency verification.
+
 ### Headless circuit generation
 
 AnadigmDesigner2 is fully scriptable over COM — no GUI needed. You can build
