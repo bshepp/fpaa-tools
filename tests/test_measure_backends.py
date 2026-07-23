@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import pytest
 from conftest import make_transitions
@@ -55,13 +57,18 @@ def test_pollbackend_records_transitions():
     assert fake.cleaned == [16]
 
 
-def test_pollbackend_missing_lib_raises():
-    be = PollBackend()  # no injected module; RPi.GPIO absent on host
+def test_pollbackend_missing_lib_raises(monkeypatch):
+    # Force the import to fail even on a Pi where RPi.GPIO exists:
+    # a None entry in sys.modules makes `import RPi.GPIO` raise ImportError.
+    monkeypatch.setitem(sys.modules, "RPi", None)
+    monkeypatch.setitem(sys.modules, "RPi.GPIO", None)
+    be = PollBackend()  # no injected module
     with pytest.raises(BackendUnavailableError):
         be.capture_edges([16], duration_s=0.001)
 
 
-def test_gpiodbackend_missing_lib_raises():
-    be = GpiodBackend()  # gpiod absent on host
+def test_gpiodbackend_missing_lib_raises(monkeypatch):
+    monkeypatch.setitem(sys.modules, "gpiod", None)
+    be = GpiodBackend()  # no injected module
     with pytest.raises(BackendUnavailableError):
         be.capture_edges([16], duration_s=0.001)
