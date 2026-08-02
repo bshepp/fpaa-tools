@@ -8,9 +8,10 @@ venv/
 .env
 .pytest_cache/
 
-# Generated configuration bitstreams
+# Generated configuration bitstreams (the bundled reference is exempt)
 *.ahf
 *.ad2
+!examples/4osc.ahf
 
 # OS
 .DS_Store

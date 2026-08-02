@@ -3,14 +3,14 @@ FPAA SPI Driver for OTC2310K04-PIKA Raspberry Pi HAT
 
 Low-level interface to the four daisy-chained AN231E04 FPAAs on the
 OTC2310K04-PIKA. Pinout and bring-up sequence match the official Okika
-reference (Documentation/pika/pikapy-main/spitest.py); protocol matches
-the AN231E04 timing diagrams.
+reference (pikapy's spitest.py); protocol matches the AN231E04 timing
+diagrams.
 
-Primary references (all in Documentation/):
-  - pika/pikapy-main/spitest.py          authoritative pin map and bring-up
-  - app_notes/FlexAnalog-ANU002-...pdf   primary configuration timing
-  - app_notes/FlexAnalog-ANU004-...pdf   power-up sequence
-  - app_notes/FlexAnalog-AN310-...pdf    daisy-chain addressing
+Primary references:
+  - spitest.py (Okika pikapy reference)  authoritative pin map and bring-up
+  - Anadigm app note ANU002              primary configuration timing
+  - Anadigm app note ANU004              power-up sequence
+  - Anadigm app note AN310               daisy-chain addressing
 
 PIKA HAT GPIO map (BCM numbering, from spitest.py):
   CE0           GPIO8     out, held low for the whole session (manual CS;
@@ -382,8 +382,8 @@ class FPAAChain:
         """
         Parse Anadigm Hex File (AHF) content into a flat byte stream.
 
-        AHF format (verified against Documentation/pika/pikapy-main/4osc.ahf
-        and spitest.py:130-133): one byte per line, ASCII hex, no delimiters,
+        AHF format (verified against the bundled examples/4osc.ahf and
+        pikapy's spitest.py:130-133): one byte per line, ASCII hex, no delimiters,
         no record framing. The file already includes the five leading 0x00
         NULL bytes that ANU002 specifies before the SYNC byte (0xD5).
 

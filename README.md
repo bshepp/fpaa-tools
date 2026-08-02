@@ -142,7 +142,9 @@ Pin map, clock-select modes, and the Pi 5 SPI requirements:
 
 The GPIO pin map and the primary-configuration sequence were derived from Okika's
 own [`pikapy`](https://github.com/okikajre) reference (`spitest.py`), which is
-released under MIT-0. This library is licensed **MIT No Attribution** to match it —
+released under MIT-0. `examples/4osc.ahf` is that reference's four-oscillator
+test configuration, included unchanged — it is the known-good first-light test
+for the chain (sine outputs at 80 / 150 / 277 / 493 kHz). This library is licensed **MIT No Attribution** to match it —
 take it, use it, no credit required.
 
 ## License

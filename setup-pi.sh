@@ -97,7 +97,7 @@ log "  ls /dev/spidev0.0           # should exist after reboot if SPI was just e
 log "  pinctrl get 8,9,10,11       # GPIO 9/10/11 should show 'a0' (SPI0_*)"
 log "                               # GPIO 8 should show 'no' (free for driver)"
 log "  source venv/bin/activate"
-log "  python3 examples/03_load_ahf.py ../Documentation/pika/pikapy-main/4osc.ahf"
+log "  python3 examples/03_load_ahf.py examples/4osc.ahf"
 echo
 if [[ "$NEEDS_REBOOT" == "1" ]]; then
     yellow "REBOOT REQUIRED for SPI config / group changes to take effect."

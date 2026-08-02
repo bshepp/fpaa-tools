@@ -8,7 +8,7 @@ but with generated frames instead of an AHF file.
 
 NOTE: create_blank_config() is UNVERIFIED on PIKA hardware. Its byte sequence
 comes from the legacy QuadApex ABK firmware. For a known-good bring-up test,
-use example 03 with Documentation/pika/pikapy-main/4osc.ahf.
+use example 03 with the bundled examples/4osc.ahf.
 
 Usage:
     python3 02_blank_config.py

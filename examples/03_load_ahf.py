@@ -6,10 +6,10 @@ Streams a circuit designed in AnadigmDesigner2 / DynAMx Design Lab onto
 the four AN231E04 FPAAs in the PIKA chain in a single SPI burst, exactly
 as the official Okika spitest.py reference does.
 
-For first-light bring-up on the Pi 5, use the known-good 4-oscillator
-configuration:
+For first-light bring-up on the Pi 5, use the bundled known-good
+4-oscillator configuration (from Okika's MIT-0 pikapy reference):
 
-    python3 03_load_ahf.py ../../Documentation/pika/pikapy-main/4osc.ahf
+    python3 03_load_ahf.py 4osc.ahf
 
 Expected hardware result: ACTIVATE goes high after ~60 ms (auto-null
 delay), and the four FPAA outputs produce sine waves at 80 / 150 / 277 /
