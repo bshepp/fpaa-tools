@@ -1,3 +1,6 @@
+# Local credentials — never committed
+.secrets/
+
 # Python
 __pycache__/
 *.pyc
