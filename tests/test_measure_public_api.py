@@ -3,7 +3,7 @@ from fpaa import measure
 
 
 def test_version_bumped():
-    assert fpaa.__version__ == "0.5.1"
+    assert fpaa.__version__ == "0.5.2"
 
 
 def test_public_surface_present():

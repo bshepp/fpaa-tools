@@ -6,14 +6,14 @@ numpy>=1.24.0            # Numerical operations
 
 # GPIO control.
 #
-# RPi.GPIO >= 0.7.2 works on the Pi 5 (verified on a Pi 5 / Debian Trixie
-# bench with the distro-packaged 0.7.2). Older RPi.GPIO does not: the Pi 5
-# kernel removed the /sys/class/gpio sysfs interface that <0.7.2 relied on.
+# The driver does `import RPi.GPIO`. That module is provided by rpi-lgpio, a
+# drop-in replacement that routes to lgpio and works on every Pi including
+# the Pi 5. Raspberry Pi OS Bookworm/Trixie ship it as `python3-rpi-lgpio`.
 #
-# If your RPi.GPIO predates 0.7.2 and you cannot upgrade it, rpi-lgpio is a
-# drop-in shim that imports as `RPi.GPIO` and routes to lgpio:
-#   pip install rpi-lgpio
-RPi.GPIO>=0.7.2
+# It reports RPi.GPIO.VERSION == "0.7.2" for compatibility. There is no real
+# RPi.GPIO 0.7.2: the original package stops at 0.7.1 on PyPI and does not
+# work on a Pi 5. Do not install both -- they provide the same module.
+rpi-lgpio>=0.6
 
 # Edge capture (recommended for anything timing-sensitive — see README).
 # Provides kernel-timestamped GPIO edge events.

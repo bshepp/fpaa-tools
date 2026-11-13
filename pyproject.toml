@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fpaa-tools"
-version = "0.5.1"
+version = "0.5.2"
 description = "Python tooling for Anadigm AN231E04 FPAAs on the Okika OTC2310K04-PIKA Raspberry Pi HAT"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,7 +24,7 @@ dependencies = ["numpy>=1.24.0"]
 # Pi-side hardware access. Kept optional so the pure-logic layers
 # (config parsing, reconfig diffing, measurement analysis) install and
 # test on any host without Pi-only wheels.
-hardware = ["spidev>=3.6", "RPi.GPIO>=0.7.2", "gpiod>=2.1"]
+hardware = ["spidev>=3.6", "rpi-lgpio>=0.6", "gpiod>=2.1"]
 dev = ["pytest>=7.0"]
 
 [project.urls]

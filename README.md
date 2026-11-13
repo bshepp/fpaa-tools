@@ -52,7 +52,7 @@ Two more Pi 5 notes baked into the driver:
 ```bash
 git clone https://github.com/bshepp/fpaa-tools
 cd fpaa-tools
-pip install -e ".[hardware]"   # pulls spidev, RPi.GPIO, gpiod (Pi-only wheels)
+pip install -e ".[hardware]"   # pulls spidev, rpi-lgpio, gpiod (Pi-only wheels)
 ```
 
 **On any host (no Pi, no hardware)** — the pure-logic layers (AHF parsing, reconfig
@@ -60,11 +60,11 @@ diffing, measurement analysis) install and test anywhere:
 
 ```bash
 pip install -e ".[dev]"        # numpy + pytest only
-pytest                         # 64 tests, no hardware needed
+pytest                         # no hardware needed
 ```
 
 > `requirements.txt` is the **Pi runtime** dependency set and expects Pi-only wheels
-> (`spidev`, `RPi.GPIO`); it will not install on a non-Pi host. Use the extras above.
+> (`spidev`, `rpi-lgpio`); it will not install on a non-Pi host. Use the extras above.
 
 ## What's here
 

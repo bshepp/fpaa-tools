@@ -79,9 +79,11 @@ typically fine. The missing signal is **SCLK**.
   **boot EEPROM** — not the header's SPI0 renumbered. The driver refuses it, and raises a
   clear error if `spidev0.0` is absent instead of trying another bus. (Raspberry Pi OS ships
   `dtoverlay=nospi10` under `[pi5]` in recent images for the same reason.)
-- **RPi.GPIO ≥ 0.7.2 works on the Pi 5.** Older versions do not — the Pi 5 kernel
-  removed the `/sys/class/gpio` sysfs interface they depend on. If you're stuck on
-  an older RPi.GPIO, `rpi-lgpio` is a drop-in shim that imports as `RPi.GPIO`.
+- **`import RPi.GPIO` is served by `rpi-lgpio`**, a drop-in replacement that routes to
+  lgpio and works on every Pi. Raspberry Pi OS ships it as `python3-rpi-lgpio`, and it
+  reports `RPi.GPIO.VERSION == "0.7.2"`. That version string is a compatibility label:
+  the original RPi.GPIO stops at 0.7.1 on PyPI and does not work on a Pi 5. (Before
+  0.5.2 this project asked pip for `RPi.GPIO>=0.7.2`, which no index can satisfy.)
 
 ## Measurement notes
 
