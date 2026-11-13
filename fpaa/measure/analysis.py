@@ -4,7 +4,26 @@ allan_deviation is the analyze_b2 estimator; snr_at and corr_coef are the
 stochastic-resonance metrics; separation and timing_stats are reused by
 NN/09 and config-timing work respectively.
 """
+import math
+
 import numpy as np
+
+
+def ldi_dewarp(f_meas_hz, f_clk_hz):
+    """Remove the sampling warp of a switched-capacitor (LDI) two-integrator loop.
+
+    The discrete loop obeys ``2*sin(w_meas*T/2) = w_eff*T`` (T = 1/f_clk), so
+    the continuous-time rate it realizes is ``f_eff = sin(pi*f_meas*T)/(pi*T)``.
+    f_eff < f_meas: sampling warps the measured frequency UP. Returns NaN past
+    the fold (f_meas >= f_clk/2).
+
+    This is a MODEL correction, and it is large at low samples-per-period
+    (~2.6% at N=8, ~0.6% at N=16) -- qualify any result that leans on it.
+    """
+    x = math.pi * f_meas_hz / f_clk_hz
+    if not 0 <= x < math.pi / 2:
+        return float("nan")
+    return math.sin(x) * f_clk_hz / math.pi
 
 
 def allan_deviation(periods_ns, taus_in_periods):

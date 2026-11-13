@@ -47,6 +47,77 @@ def periods(trans: np.ndarray) -> np.ndarray:
     return np.diff(r).astype(np.float64)
 
 
+@dataclass
+class PeriodStats:
+    """Robust rising-to-rising period statistics, with readout-fault accounting.
+
+    "Clean" periods are those within [0.5, 1.5] x the median. Shorter ones are
+    comparator chatter (extra edges); longer ones are dropped edges. Both are
+    READOUT faults and are reported as fractions instead of being absorbed
+    into a spread figure.
+    """
+    n_periods: int = 0                 # all rising-to-rising periods
+    n_clean: int = 0
+    f_mean_hz: float = float("nan")    # 1 / mean(clean)   -- use this for frequency
+    f_median_hz: float = float("nan")  # 1 / median(clean) -- snaps on clocked sources
+    f_raw_hz: float = float("nan")     # 1 / mean(all)
+    cv_raw: float = float("nan")       # std/mean over ALL periods (fragile)
+    cv_clean: float = float("nan")     # std/mean over clean periods
+    jitter_mad: float = float("nan")   # 1.4826*MAD/median over clean periods
+    frac_short: float = float("nan")
+    frac_long: float = float("nan")
+    min_over_med: float = float("nan")
+    level_repeats: int = 0             # consecutive same-level events (dropped edges)
+
+    @property
+    def contamination(self) -> float:
+        return self.frac_short + self.frac_long
+
+
+def period_stats(trans: np.ndarray, min_periods: int = 8) -> PeriodStats:
+    """Robust period statistics from an (N,2) [timestamp_ns, level] array.
+
+    Two estimator traps this exists to avoid (both cost real bench results):
+
+    * ``std/mean`` over all periods is defenceless against spurious edges: a
+      few percent of chatter periods reads as tens of percent "jitter". Use
+      ``jitter_mad`` (or ``cv_clean``) and check ``contamination``.
+    * On a clocked (switched-capacitor) source the period is an integer number
+      of clock cycles, so the MEDIAN snaps to that grid and reports a
+      bit-identical, wrong frequency. ``f_mean_hz`` averages the dither and
+      does not snap. Note ``jitter_mad`` is 0 when >50% of periods share one
+      grid value -- that is quantisation, not a quiet oscillator.
+
+    Fields stay NaN when fewer than ``min_periods`` periods (or clean periods)
+    are available.
+    """
+    st = PeriodStats()
+    if trans.ndim != 2 or trans.shape[0] < 2:
+        return st
+    st.level_repeats = int(np.count_nonzero(np.diff(trans[:, 1]) == 0))
+    per = periods(trans) / 1e9
+    st.n_periods = int(per.size)
+    if per.size < min_periods:
+        return st
+    med = float(np.median(per))
+    if not np.isfinite(med) or med <= 0:
+        return st
+    st.frac_short = float(np.mean(per < 0.5 * med))
+    st.frac_long = float(np.mean(per > 1.5 * med))
+    st.min_over_med = float(per.min() / med)
+    st.f_raw_hz = float(1.0 / per.mean())
+    st.cv_raw = float(per.std() / per.mean())
+    clean = per[(per > 0.5 * med) & (per < 1.5 * med)]
+    st.n_clean = int(clean.size)
+    if clean.size >= min_periods:
+        cmed = float(np.median(clean))
+        st.f_mean_hz = float(1.0 / clean.mean())
+        st.f_median_hz = 1.0 / cmed
+        st.cv_clean = float(clean.std() / clean.mean())
+        st.jitter_mad = float(np.median(np.abs(clean - cmed))) * 1.4826 / cmed
+    return st
+
+
 def duty(trans: np.ndarray) -> Duty:
     """Duty cycle and frequency over whole periods.
 

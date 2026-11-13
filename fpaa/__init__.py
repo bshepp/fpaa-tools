@@ -23,16 +23,18 @@ MIT No Attribution.
 """
 
 from .driver import FPAA, FPAAChain
-from .config import load_ahf_file, load_ahf_bytes, split_ahf_by_chip, parse_bitstream
+from .config import (load_ahf_file, load_ahf_bytes, split_ahf_by_chip,
+                     parse_bitstream, chip_frame, assemble_chain, write_ahf)
 from .neural import AnalogNeuron, AnalogLayer
 from .reconfig import (UpdateBlock, diff_frames, build_update_frame,
                        make_update_from_configs)
 from . import measure
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __all__ = [
     "FPAA", "FPAAChain",
     "load_ahf_file", "load_ahf_bytes", "split_ahf_by_chip", "parse_bitstream",
+    "chip_frame", "assemble_chain", "write_ahf",
     "AnalogNeuron", "AnalogLayer",
     "UpdateBlock", "diff_frames", "build_update_frame",
     "make_update_from_configs",

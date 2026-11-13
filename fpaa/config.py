@@ -105,6 +105,63 @@ def split_ahf_by_chip(data: bytes) -> List[FPAAConfig]:
     return configs
 
 
+def chip_frame(data: bytes, addr: int) -> bytes:
+    """Extract the single primary-config frame from a PER-CHIP AHF byte stream
+    and set its chain address.
+
+    A per-chip export (AD2 ``WriteConfigData`` fmt 0) is ``[0x00 preamble][one
+    0xD5 frame]``, so the frame is everything from the first 0xD5. This is
+    deliberately NOT built on split_ahf_by_chip(), which splits on every 0xD5
+    and mis-fires when configuration data happens to contain that byte.
+    """
+    start = data.find(0xD5)
+    if start < 0:
+        raise ValueError("no 0xD5 frame sync in AHF data")
+    f = bytearray(data[start:])
+    if len(f) < 7 or f[6] != 0xC1:
+        ctrl = f"0x{f[6]:02X}" if len(f) > 6 else "missing"
+        raise ValueError(f"control byte {ctrl} != 0xC1 (not a primary-config frame?)")
+    if not 1 <= addr <= 0xFE:
+        raise ValueError(f"chain address {addr} out of range 1..254")
+    f[5] = addr
+    return bytes(f)
+
+
+def write_ahf(path, data: bytes) -> Path:
+    """Write a byte stream as an AHF (ASCII hex, one byte per line)."""
+    path = Path(path)
+    path.write_text("\n".join(f"{b:02X}" for b in data) + "\n")
+    return path
+
+
+def assemble_chain(sources, out_path=None, n_chips: int = 4) -> bytes:
+    """Build a daisy-chain primary configuration from per-chip AHFs.
+
+    ``sources`` is a sequence of per-chip AHF paths or byte streams, in chain
+    order; frame ``i`` gets chain address ``i + 1``. A single source (not a
+    list) is replicated to ``n_chips`` addresses -- the usual way to get N
+    independent measurements of one design, and to make ACTIVATE assert.
+
+    Returns ``5 NULL bytes + frames``; also writes it to ``out_path`` as an AHF
+    if given.
+    """
+    if isinstance(sources, (str, Path, bytes, bytearray)):
+        sources = [sources] * n_chips
+    frames = []
+    for i, src in enumerate(sources):
+        is_bytes = isinstance(src, (bytes, bytearray))
+        data = bytes(src) if is_bytes else load_ahf_bytes(src)
+        try:
+            frames.append(chip_frame(data, i + 1))
+        except ValueError as e:
+            label = "bytes" if is_bytes else str(src)
+            raise ValueError(f"chain position {i} ({label}): {e}") from None
+    chain = bytes(5) + b"".join(frames)
+    if out_path is not None:
+        write_ahf(out_path, chain)
+    return chain
+
+
 def load_ahf_file(filepath: str) -> List[FPAAConfig]:
     """
     Load an AHF file and split it into per-chip configurations.

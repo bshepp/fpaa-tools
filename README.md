@@ -76,6 +76,20 @@ for cfg in split_ahf_by_chip(data):         # per-chip frames
     print(f"chip {cfg.chip_id:02X}: {cfg.total_bytes} B, {len(cfg.blocks)} blocks")
 ```
 
+AnadigmDesigner2 exports one AHF per chip. `assemble_chain` builds the
+daisy-chain stream from them (5 NULLs, then each frame re-addressed 1..N by
+position):
+
+```python
+from fpaa import assemble_chain
+
+assemble_chain(["c0.ahf", "c1.ahf", "c2.ahf", "c3.ahf"], "chain.ahf")
+assemble_chain("osc.ahf", "chain.ahf")      # one design replicated to all 4 chips
+```
+
+Use it rather than `split_ahf_by_chip` for this: the splitter is an inspection
+tool that breaks on every `0xD5` byte, including ones inside configuration data.
+
 ### Runtime reconfiguration (~1 ms, no reset)
 
 `fpaa.reconfig` builds AN231E04 update frames directly. The trick is that you
@@ -113,6 +127,23 @@ for, so sustained loss-free capture ends around 100–200k edges/s. In practice
 GPIO frequency measurements are trustworthy up to ~150 kHz per pin — bench
 runs confirm the 80 and 150 kHz 4osc channels exactly, while the 277 and
 493 kHz channels show activity but need a scope for frequency verification.
+
+**Use `period_stats` for jitter and frequency, not `std/mean`.**
+
+```python
+from fpaa.measure import GpiodBackend, period_stats
+
+st = period_stats(GpiodBackend().capture_edges([16], duration_s=1.0).pin(16))
+print(st.f_mean_hz, st.jitter_mad, st.contamination)
+```
+
+It separates the oscillator from the readout. Periods outside 0.5–1.5× the
+median are comparator chatter or dropped edges; they are reported as
+`contamination` instead of being folded into a spread. A few percent of chatter
+is enough to make a 0.1%-jitter oscillator read as 27% by `std/mean`. And on a
+switched-capacitor oscillator the period is an integer number of clock cycles,
+so the *median* snaps to that grid — `f_mean_hz` does not. `ldi_dewarp` removes
+the sampling warp of an SC two-integrator loop when comparing across clocks.
 
 ### Headless circuit generation
 
