@@ -11,7 +11,7 @@ without a reset, and measure what the analog side actually does.
 ```python
 from fpaa import FPAAChain
 
-with FPAAChain() as chain:                          # auto-detects the SPI bus
+with FPAAChain() as chain:                          # SPI bus 0 (the header)
     ok = chain.configure_from_ahf("circuit.ahf")    # reset + stream + verify
     print(f"active={chain.activate_status} err_clear={chain.err_status}")
 ```
@@ -40,8 +40,10 @@ Two more Pi 5 notes baked into the driver:
 - **SPI writes are chunked to ≤64 bytes per `xfer2`**, working around an open Pi 5
   DMA timeout bug ([raspberrypi/linux#6020](https://github.com/raspberrypi/linux/issues/6020)).
   This is deliberate — don't "simplify" it back to a single transfer.
-- The driver **auto-detects the SPI bus** (`/dev/spidev0.0` on a Pi 4 or a
-  correctly-configured Pi 5; `/dev/spidev10.0` on a Pi 5 with the wrong overlay).
+- The driver uses **SPI bus 0 only** (`/dev/spidev0.0`, the 40-pin header). If that node is
+  missing it stops and tells you to fix `config.txt`. It will not use `/dev/spidev10.0`:
+  on a Pi 5 that is the **boot-EEPROM bus**, not the header. (Versions before 0.5.1 fell
+  back to bus 10 — upgrade if you run this on a Pi 5.)
 
 ## Install
 

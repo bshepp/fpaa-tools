@@ -30,7 +30,7 @@ from .reconfig import (UpdateBlock, diff_frames, build_update_frame,
                        make_update_from_configs)
 from . import measure
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __all__ = [
     "FPAA", "FPAAChain",
     "load_ahf_file", "load_ahf_bytes", "split_ahf_by_chip", "parse_bitstream",

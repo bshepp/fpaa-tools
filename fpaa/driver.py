@@ -175,11 +175,11 @@ class FPAAChain:
         Initialise the chain.
 
         Args:
-            spi_bus:             spidev bus number. None = auto-detect
-                                 (Pi 4: bus 0 → /dev/spidev0.0;
-                                  Pi 5: bus 10 → /dev/spidev10.0 — the
-                                  BCM2712 SoC renumbered SPI0 in the kernel
-                                  device tree).
+            spi_bus:             spidev bus number. None = bus 0
+                                 (/dev/spidev0.0), which is the 40-pin
+                                 header's SPI0 on every Pi. On a Pi 5,
+                                 bus 10 is NOT the header: it is the
+                                 boot-EEPROM bus, and is refused.
             spi_device:          spidev device (chip select). Default 0.
             spi_speed_hz:        SPI clock; 32 MHz matches spitest.py
             clock_source:        ACLK source select (default: local 16 MHz)
@@ -197,19 +197,49 @@ class FPAAChain:
         if not self.simulate:
             if spi_bus is None:
                 spi_bus = self._autodetect_spi_bus(spi_device)
+            self._check_spi_bus(spi_bus)
             self._init_hardware(spi_bus, spi_device, spi_speed_hz)
         else:
             print("[SIM] FPAAChain initialised in simulation mode")
 
+    HEADER_SPI_BUS = 0   # SPI0 on the 40-pin header, on every Pi model
+
     @staticmethod
-    def _autodetect_spi_bus(spi_device: int) -> int:
-        """Return the spidev bus number whose /dev node exists (Pi 4 vs 5)."""
+    def _is_pi5() -> bool:
+        try:
+            with open("/proc/device-tree/model", "rb") as f:
+                return b"Raspberry Pi 5" in f.read()
+        except OSError:
+            return False
+
+    @classmethod
+    def _autodetect_spi_bus(cls, spi_device: int) -> int:
+        """Return the header SPI bus (0), or raise if its device node is missing.
+
+        This deliberately does NOT fall back to another bus. On a Pi 5,
+        /dev/spidev10.0 is the BCM2712 SoC's own SPI controller, wired to the
+        boot EEPROM -- it is not the header's SPI0 under another number. An
+        earlier version fell back to bus 10 when spidev0.0 was absent, which on a
+        Pi 5 without the SPI lines in config.txt would have streamed FPAA
+        configuration bytes at the bootloader flash.
+        """
         import os
-        for bus in (0, 10):
-            if os.path.exists(f"/dev/spidev{bus}.{spi_device}"):
-                return bus
-        # Default to 0 if nothing found; spidev.open() will raise a clear error.
-        return 0
+        node = f"/dev/spidev{cls.HEADER_SPI_BUS}.{spi_device}"
+        if os.path.exists(node):
+            return cls.HEADER_SPI_BUS
+        raise RuntimeError(
+            f"{node} not found: SPI0 is not enabled on the GPIO header. Add BOTH "
+            "'dtparam=spi=on' and 'dtoverlay=spi0-0cs' to /boot/firmware/config.txt "
+            "and reboot. (Do not point this driver at /dev/spidev10.0 on a Pi 5 -- "
+            "that bus is the boot EEPROM.)")
+
+    @classmethod
+    def _check_spi_bus(cls, spi_bus: int) -> None:
+        """Refuse an explicitly requested bus that is known to be dangerous."""
+        if spi_bus == 10 and cls._is_pi5():
+            raise ValueError(
+                "spi_bus=10 on a Raspberry Pi 5 is the boot-EEPROM bus, not the "
+                "GPIO header. The PIKA HAT is on bus 0 (/dev/spidev0.0).")
 
     # ------------------------------------------------------------------
     # hardware init / teardown

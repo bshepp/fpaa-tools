@@ -74,8 +74,11 @@ typically fine. The missing signal is **SCLK**.
 
 - **SPI writes are chunked to ≤64 bytes per `xfer2`** to work around an open Pi 5
   DMA timeout bug ([raspberrypi/linux#6020](https://github.com/raspberrypi/linux/issues/6020)).
-- The driver **auto-detects the SPI bus**: `/dev/spidev0.0` on a Pi 4 or a properly
-  configured Pi 5, `/dev/spidev10.0` on a Pi 5 with the wrong overlay setup.
+- The driver uses **SPI bus 0 only** (`/dev/spidev0.0`). On a Pi 5 a second node,
+  `/dev/spidev10.0`, may exist: that is the BCM2712 SoC's own SPI controller, wired to the
+  **boot EEPROM** — not the header's SPI0 renumbered. The driver refuses it, and raises a
+  clear error if `spidev0.0` is absent instead of trying another bus. (Raspberry Pi OS ships
+  `dtoverlay=nospi10` under `[pi5]` in recent images for the same reason.)
 - **RPi.GPIO ≥ 0.7.2 works on the Pi 5.** Older versions do not — the Pi 5 kernel
   removed the `/sys/class/gpio` sysfs interface they depend on. If you're stuck on
   an older RPi.GPIO, `rpi-lgpio` is a drop-in shim that imports as `RPi.GPIO`.
